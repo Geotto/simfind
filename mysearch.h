@@ -21,6 +21,16 @@ typedef struct MySearchOptions{
     mode_t mode;
 
     /**
+     * 文件权限（包含）
+    */
+    int mode_include;
+
+    /**
+     * 文件权限（不包含）
+    */
+    int mode_exclude;
+
+    /**
      * 组id
      */
     gid_t gid;
@@ -56,25 +66,32 @@ typedef struct MySearchOptions{
  */
 #define MSEARCHOPTS_ATTR_IGNORE (0x01);
 
-/**
- * 名称选项不正确 
-*/
-#define MS_ENAME (-1);
+enum MS_ERR{
+    MS_ENAME = -1,
+    MS_ETYPE = -2,
+    MS_EDIR = -3,
+    MS_EREG = -4,
+    MS_ERROR = -5,
+    MS_EUID = -6,
+    MS_EGID = -7
+};
 
-/**
- * 类型选项不正确
-*/
-#define MS_ETYPE (-2);
-
-/**
- * 目录选项不正确
-*/
-#define MS_EDIR (-3);
-
-/**
- * 正则表达式错误
-*/
-#define MS_EREG (-4);
+enum MS_MODE{
+    MS_MODE_NONE = 0,
+    MS_MODE_OX = 1,
+    MS_MODE_OW = 2,
+    MS_MODE_OR = 4,
+    MS_MODE_GX = 8,
+    MS_MODE_GW = 16,
+    MS_MODE_GR = 32,
+    MS_MODE_UX = 64,
+    MS_MODE_UW = 128,
+    MS_MODE_UR = 256,
+    MS_MODE_FLAGO = 512,
+    MS_MODE_FLAGG = 1024,
+    MS_MODE_FLAGU = 2048,
+    MS_MODE_FLAGA = 3584
+};
 
 /**
  * 创建MySearchOptions
@@ -120,6 +137,20 @@ void MySearch_Search(MSEARCHOPTS options, void (*action)(MSEARCHOPTS, MDIRENT), 
  * @return 0-成功，其他-失败
 */
 int MySearch_BuildOptions(MSEARCHOPTS options, int argc, char *argv[]);
+
+/**
+ * 获取文件的状态
+ * @param path 文件路径
+ * @return 如果成功，返回文件状态，否则返回NULL
+*/
+struct stat *MySearch_GetStatBuf(char *path);
+
+/**
+ * 检查模式
+ * @param mode_actual 实际的模式
+ * @param mode_expect 需求的选项
+*/
+int MySearch_CheckMode(int mode_expect, mode_t mode_actual);
 
 /**
  * 销毁MySearchOptions 
